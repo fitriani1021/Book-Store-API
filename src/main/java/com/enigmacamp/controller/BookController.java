@@ -2,6 +2,7 @@ package com.enigmacamp.controller;
 
 import com.enigmacamp.exception.NotFoundException;
 import com.enigmacamp.model.Book;
+import com.enigmacamp.model.BookPrice;
 import com.enigmacamp.model.request.BookRequest;
 import com.enigmacamp.model.response.ErrorResponse;
 import com.enigmacamp.model.response.PagingResponse;
@@ -63,12 +64,14 @@ public class BookController {
         }
     }
     
-    @PutMapping("/{id}")
-    public ResponseEntity updateBook(@PathVariable("id") String id, @Valid @RequestBody BookRequest book) throws Exception {
+    @PatchMapping("/{id}")
+    public ResponseEntity updateBook(@RequestBody BookPrice price, @PathVariable("id") String id) throws Exception {
         try {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            Book newBook = modelMapper.map(book, Book.class);
-            Book result = bookService.update(newBook, id);
+            BookPrice newPrice = modelMapper.map(price, BookPrice.class);
+            newPrice.setPriceId(id);
+            newPrice.getStock().setStockId(newPrice.getStock().getStockId());
+            BookPrice result = bookService.update(newPrice);
             return ResponseEntity.status(HttpStatus.CREATED).body(new SuccessResponse<>("Successfully updated book", result));
         }catch(Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("X06","Id not found"));

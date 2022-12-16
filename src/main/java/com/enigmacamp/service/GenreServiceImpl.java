@@ -17,7 +17,6 @@ import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class GenreServiceImpl implements GenreService {
     private GenreRepository genreRepository;
     
@@ -26,6 +25,7 @@ public class GenreServiceImpl implements GenreService {
     }
     
     @Override
+    @Transactional
     public BookGenre create(BookGenre category) throws Exception {
         try {
             BookGenre newCategory = genreRepository.save(category);
@@ -36,6 +36,7 @@ public class GenreServiceImpl implements GenreService {
     }
     
     @Override
+    @Transactional
     public Page<BookGenre> getAll(Integer page, Integer size, String direction, String sortBy) throws Exception {
         Sort sort = Sort.by(Sort.Direction.valueOf(direction), sortBy);
         Pageable pageable = PageRequest.of((page - 1), size, sort);
@@ -44,6 +45,7 @@ public class GenreServiceImpl implements GenreService {
     }
     
     @Override
+    @Transactional
     public BookGenre getByName(String name) throws Exception {
         Optional<BookGenre> category = genreRepository.findByName(name);
         if(category.isEmpty()) {
@@ -53,6 +55,7 @@ public class GenreServiceImpl implements GenreService {
     }
     
     @Override
+    @Transactional
     public Optional<BookGenre> getById(String id) throws Exception {
         Optional<BookGenre> genre = genreRepository.findById(id);
         if(genre.isEmpty()) {
@@ -62,6 +65,7 @@ public class GenreServiceImpl implements GenreService {
     }
     
     @Override
+    @Transactional
     public void deleteById(String id) throws Exception {
         try {
             genreRepository.deleteById(id);

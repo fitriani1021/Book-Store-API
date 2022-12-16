@@ -52,9 +52,4 @@ public class Book {
     @Getter
     @Setter
     private BookPrice price;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JsonIgnoreProperties
-    @Getter
-    @Setter
-    private BookStock stock;
 }

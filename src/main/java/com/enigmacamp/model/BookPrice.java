@@ -1,5 +1,6 @@
 package com.enigmacamp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -18,4 +19,8 @@ public class BookPrice {
     @Column(name = "price")
     @Getter     @Setter
     private Integer price;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonIgnoreProperties
+    @Getter     @Setter
+    private BookStock stock;
 }

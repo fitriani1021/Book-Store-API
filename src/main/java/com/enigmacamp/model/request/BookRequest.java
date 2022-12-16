@@ -11,5 +11,4 @@ public class BookRequest {
     private String isbn;
     private BookGenreRequest genre;
     private BookPriceRequest price;
-    private BookStockRequest stock;
 }

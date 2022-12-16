@@ -3,6 +3,8 @@ package com.enigmacamp.service;
 import com.enigmacamp.exception.NotFoundException;
 import com.enigmacamp.model.Book;
 import com.enigmacamp.model.BookGenre;
+import com.enigmacamp.model.BookPrice;
+import com.enigmacamp.repository.BookPriceRepository;
 import com.enigmacamp.repository.BookRepository;
 import com.enigmacamp.repository.GenreRepository;
 import org.modelmapper.ModelMapper;
@@ -18,19 +20,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class BookServiceImpl implements BookService {
     private GenreRepository genreRepository;
     private BookRepository bookRepository;
     private ModelMapper modelMapper;
+    private final BookPriceRepository bookPriceRepository;
     
-    public BookServiceImpl(@Autowired GenreRepository genreRepository, @Autowired BookRepository bookRepository, @Autowired ModelMapper modelMapper) {
+    public BookServiceImpl(@Autowired GenreRepository genreRepository, @Autowired BookRepository bookRepository, @Autowired ModelMapper modelMapper, BookPriceRepository bookPriceRepository) {
         this.genreRepository = genreRepository;
         this.bookRepository = bookRepository;
         this.modelMapper = modelMapper;
+        this.bookPriceRepository = bookPriceRepository;
     }
     
     @Override
+    @Transactional
     public Page<Book> getAll(Integer page, Integer size, String direction, String sortBy) throws Exception {
         Sort sort = Sort.by(Sort.Direction.valueOf(direction), sortBy);
         Pageable pageable = PageRequest.of((page - 1), size, sort);
@@ -39,6 +43,7 @@ public class BookServiceImpl implements BookService {
     }
     
     @Override
+    @Transactional
     public Book create(Book book) throws Exception {
         Optional<BookGenre> genre = genreRepository.findByName(book.getGenre().getName());
         if(genre.isEmpty()) {
@@ -50,6 +55,7 @@ public class BookServiceImpl implements BookService {
     }
     
     @Override
+    @Transactional
     public List<Book> getByTitle(String title) throws Exception {
         List<Book> result = bookRepository.getByTitle(title);
         if(result.isEmpty()) {
@@ -59,6 +65,7 @@ public class BookServiceImpl implements BookService {
     }
     
     @Override
+    @Transactional
     public Book getById(String id) throws Exception {
         Optional<Book> result = bookRepository.findById(id);
         if(result.isEmpty()) {
@@ -68,19 +75,24 @@ public class BookServiceImpl implements BookService {
     }
     
     @Override
-    public Book update(Book book, String id) throws Exception {
+    @Transactional
+    public BookPrice update(BookPrice price) throws Exception {
         try {
-            Book existingBook = getById(id);
-            modelMapper.map(book, existingBook);
-            book.setBookId(id);
-            Book newBook = bookRepository.save(existingBook);
-            return newBook;
-        } catch(NotFoundException e) {
-            throw new NotFoundException("Update failed because ID is not found");
+            Optional<BookPrice> bookPrice = bookPriceRepository.findById(price.getPriceId());
+            if(bookPrice.isEmpty()) {
+                throw new NotFoundException("Book Price " + price.getPriceId() + " not found");
+            }
+            bookPrice.get().setPrice(price.getPrice());
+            bookPrice.get().getStock().setStock(price.getStock().getStock());
+            BookPrice newPrice = bookPriceRepository.save(bookPrice.get());
+            return newPrice;
+        }catch(Exception e){
+            throw new RuntimeException("Update data failed");
         }
     }
     
     @Override
+    @Transactional
     public void deleteById(String id) throws Exception {
         try {
             Book existingCourse = getById(id);
